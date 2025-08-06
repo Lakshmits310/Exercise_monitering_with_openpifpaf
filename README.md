@@ -1,136 +1,101 @@
-# 🏋️‍♂️ Exercise Monitoring with OpenPifPaf  
+# 🏋️‍♂️ Exercise Monitoring with OpenPifPaf
+
 ## Smart Exercise Form Analysis & Repetition Counting System
+A hybrid AI system using **OpenPifPaf** for keypoint detection, combined with **LSTM-based classification** and **rule-based logic** to monitor and analyze workout form. The system detects **posture mistakes**, **counts repetitions**, and provides **visual + textual feedback** for five popular exercises.
 
-![OpenPifPaf Keypoints](https://example.com/path/to/sample_keypoints_image.gif)  
-> *Visualizing body keypoints using OpenPifPaf — replace with an actual sample GIF or image*
-
----
-
-A hybrid AI system using **OpenPifPaf** for keypoint detection, combined with **LSTM-based classification** and **rule-based logic** to monitor and analyze your workout form. It detects **posture mistakes**, **counts repetitions**, and provides **visual + textual feedback** for five popular exercises:
-
-✅ **Supported Exercises**:
-- Squats  
-- Pushups  
-- Situps  
-- Lunges  
-- Planks *(form analysis only)*
-
----
+## ✅ Supported Exercises
+* Squats
+* Pushups
+* Pullups
+* Leg Raises
+* Planks *(form analysis only, no rep counting)*
 
 ## 🚀 Features
+* **Pose Estimation:** Extracts 17 keypoints per frame using OpenPifPaf (COCO format).
+* **Form Analysis (Mistake Detection):**
+  * LSTM detects temporal anomalies.
+  * Rule-based logic validates joint angles and movement patterns.
+* **Repetition Counting:** Accurate peak detection on key movement trajectories (e.g., hips for squats, shoulders for pushups).
+* **Feedback Generation:** Annotated output video with rep count and mistake timestamps.
+* **Multi-Angle Support:** Works with side-view and front-view exercise videos.
 
-- 📹 Real-time exercise analysis from videos  
-- 🔁 Accurate repetition counter  
-- ❌ Detects common form mistakes (e.g., knee position, hip sag, elbow angle)  
-- 🤖 Hybrid logic: Deep Learning + Rule-based corrections  
-- 🎥 Multi-angle support: Side-view & Front-view  
-- 📊 Detailed result reports with annotations  
+## 🛠️ Implementation Overview
+1. **Keypoint Extraction (`extract_keypoints.py`)**
+   * Runs OpenPifPaf inference on each video frame.
+   * Outputs normalized keypoint arrays (`.npy`) for consistency across users and resolutions.
 
----
+2. **LSTM Training (`train_lstm.py`)**
+   * Trains on good-form sequences to learn temporal movement patterns.
+   * Outputs `.pth` model weights for later inference.
 
-## 🛠️ Installation & Setup
+3. **Mistake Detection (`mistake_detection.py`)**
+   * Uses LSTM anomaly scores and rule-based validation for joint angle violations.
+   * Flags incorrect posture and generates feedback.
 
-1.  Clone the Repository
-git clone 
+4. **Repetition Counting (`rep_count.py`)**
+   * Tracks joint position changes (vertical/horizontal trajectories).
+   * Uses peak detection with range and timing thresholds.
 
-2. Install Required Packages
-pip install -r requirements.txt
+5. **Web Application (`app.py`)**
+   * Flask-based UI for uploading videos.
+   * Returns annotated video + detailed report.
 
-3. Download Pretrained Models
-wget https://example.com/path/to/models.zip
-unzip models.zip -d models/
+## 📥 Input
+* Video file of supported exercises
+* Front or side view preferred
+* Recommended resolution: **720p or higher**
 
-How to Use
-Run the Analyzer
-python analyze.py --input path/to/video.mp4 --exercise pushup
+## 📤 Output
+* Annotated video with:
+  * Skeleton overlay
+  * Rep count overlay
+  * Mistake indicators with timestamps
 
-Available Options
-Argument	Description
---input	Path to input video file (e.g., video.mp4)
---exercise	Type of exercise (squat, pushup, situp, lunge, plank)
---output_dir	Directory to save outputs (default: ./results)
---show	Optional flag to show real-time visualization during processing
-
-Available Options
-Argument	Description
---input	Path to input video file (e.g., video.mp4)
---exercise	Type of exercise (squat, pushup, situp, lunge, plank)
---output_dir	Directory to save outputs (default: ./results)
---show	Optional flag to show real-time visualization during processing
-
-🧾 Sample Console Output
+* Console/log feedback (example):
+```
 Processed 300 frames (10.0 FPS)
 Detected 12 pushup repetitions
 Form errors detected:
 - Frame 45: Elbows flaring > 45°
 - Frame 128: Incomplete range of motion
 - Frame 215: Hip sagging
+```
 
-📚 Training Your Own LSTM Model
-Step 1: Preprocess Videos to Extract Keypoints
-bash
-Copy
-Edit
-python preprocess.py --data_dir ./videos --output ./training_data
-Step 2: Train the LSTM Classifier
-bash
-Copy
-Edit
-python train.py --data ./training_data --epochs 50
-⚙️ Modify train.py to customize model architecture, dropout rate, learning rate, etc.
+## 📊 Results Summary
+* **Pose Estimation:** 15–20 FPS on mid-range GPU with OpenPifPaf
+* **Repetition Counting Accuracy:** \~95% on validated test videos
+* **Mistake Detection:** Hybrid (LSTM + rules) reduced false positives by \~30% compared to LSTM-only detection
+* **Scalability:** Modular codebase supports adding new exercises with minimal changes
 
-⚠️ Known Limitations
-📏 Requires full-body visibility in video frame
+## ⚙️ Setup & Usage
+### 1. Clone Repository
+```bash
+git clone https://github.com/<your-username>/Exercise_monitoring_with_openpifpaf.git
+cd Exercise_monitoring_with_openpifpaf
+```
 
-🎥 Best results with front or side views
+### 2. Install Requirements
+```bash
+pip install -r requirements.txt
+```
 
-📹 Recommended resolution: 720p or higher
+### 3. Download Pretrained Models
+```bash
+# Replace with your hosted model path
+wget https://example.com/path/to/models.zip
+unzip models.zip -d models/
+```
 
-💡 Low lighting or obstruction may reduce accuracy
+### 4. Run Web Application
+```bash
+python app.py
+```
 
-📌 Plank detection only supports form analysis (no rep counting)
+Upload your video → Receive annotated output & feedback.
 
-👨‍💻 Contributors
-Made with ❤️ by:
-
-Karthikeya
-
-Lakshmi
-
-Swedha
-
-Sandip
-
-Mohasin
-
-Sreehari
-
-📄 License
-This project is licensed under the MIT License.
-Feel free to use, modify, and distribute for academic or commercial purposes.
-
-💬 Feedback, Support & Contributions
-Found a bug? → Open an Issue
-
-Want to contribute? → Fork the repo and submit a PR
-
-Enjoyed the project? → ⭐ Star this repository!
-
-markdown
-Copy
-Edit
-
----
-
-### ✅ Next Steps for You
-
-1. **Replace**:
-   - The image/GIF link under the banner.
-   - The pretrained model URL.
-   - The GitHub repo username (`yourusername`) in links.
-2. **Save** this as `README.md` in your project root.
-3. **Push** to GitHub:
-   ```bash
-   git add README.md
-   git commit -m "Added complete project README"
-   git push origin main
+## 🛠 Technologies Used
+* **Pose Estimation:** [OpenPifPaf](https://github.com/openpifpaf/openpifpaf)
+* **Deep Learning:** PyTorch (LSTM)
+* **Backend Framework:** Flask
+* **Visualization & Processing:** OpenCV, Matplotlib, NumPy
+* **Dataset:** [Workout Fitness Video – Kaggle](https://www.kaggle.com/datasets/hasyimabdillah/workoutfitness-video)
